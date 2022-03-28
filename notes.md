@@ -22,3 +22,22 @@
 
 根据手机号获取用户，出现的异常由GlobalExceptionHandler处理；
 
+
+
+
+
+#### 2022.03.28（设置cookie）
+
+![image-20220328154909912](../../Typroa_images/image-20220328154909912.png)
+
+在控制器的参数传入request和response；
+
+UserServiceImpl类中doLogin()方法，在返回前生成cookie，在request的session中设置cookie
+
+```java
+//        生成cookie
+        String ticket = UUIDUtil.uuid();
+        request.getSession().setAttribute(ticket, user);
+        CookieUtil.setCookie(request, response, "userTicket", ticket);
+```
+

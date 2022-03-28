@@ -5,14 +5,17 @@ import com.example.seckilldemo.exception.GlobalException;
 import com.example.seckilldemo.mapper.UserMapper;
 import com.example.seckilldemo.service.IUserService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.example.seckilldemo.utils.CookieUtil;
 import com.example.seckilldemo.utils.MD5Util;
-import com.example.seckilldemo.utils.ValidatorUtil;
+import com.example.seckilldemo.utils.UUIDUtil;
 import com.example.seckilldemo.vo.LoginVo;
 import com.example.seckilldemo.vo.RespBean;
 import com.example.seckilldemo.vo.RespBeanEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * <p>
@@ -31,10 +34,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     /**
      * 登录
      * @param loginVo
+     * @param request
+     * @param response
      * @return
      */
     @Override
-    public RespBean doLogin(LoginVo loginVo) {
+    public RespBean doLogin(LoginVo loginVo, HttpServletRequest request, HttpServletResponse response) {
         String mobile = loginVo.getMobile();
         String password = loginVo.getPassword();
 //        if (StringUtils.isEmpty(mobile) || StringUtils.isEmpty(password)){
@@ -52,6 +57,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         if (!MD5Util.formPwdToDBPwd(password, user.getSalt()).equals(user.getPassword())){
             throw new GlobalException(RespBeanEnum.LOGIN_ERROR);
         }
+//        生成cookie
+        String ticket = UUIDUtil.uuid();
+        request.getSession().setAttribute(ticket, user);
+        CookieUtil.setCookie(request, response, "userTicket", ticket);
         return RespBean.success();
     }
 }
