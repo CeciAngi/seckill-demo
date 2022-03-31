@@ -41,3 +41,114 @@ UserServiceImpl类中doLogin()方法，在返回前生成cookie，在request的s
         CookieUtil.setCookie(request, response, "userTicket", ticket);
 ```
 
+
+
+
+
+
+
+#### 2022.03.31（优化登录功能）
+
+使用redis存储用户信息
+
+虚拟机后台开启redis：
+
+```shell
+redis-server redis.conf
+```
+
+本机连CentOS的redis
+
+创建redisTemplate：
+
+```java
+@Bean
+    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
+        RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
+        //key序列化
+        redisTemplate.setKeySerializer(new StringRedisSerializer());
+        //value序列化
+        redisTemplate.setValueSerializer(new GenericJackson2JsonRedisSerializer());
+        //hash类型 key序列化
+        redisTemplate.setHashKeySerializer(new StringRedisSerializer());
+        //hash类型 value序列化
+        redisTemplate.setHashValueSerializer(new GenericJackson2JsonRedisSerializer());
+        //注入连接工厂
+        redisTemplate.setConnectionFactory(redisConnectionFactory);
+        return redisTemplate;
+    }
+```
+
+
+
+登录时：将用户信息存入redis。
+
+![image-20220331161140660](../../Typroa_images/image-20220331161140660.png)
+
+
+
+对请求进行拦截：
+
+设置WebConfig类
+
+```java
+@Configuration
+public class WebConfig implements WebMvcConfigurer {
+    @Autowired
+    private UserArgumentResolver userArgumentResolver;
+
+
+    @Override
+    public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
+        resolvers.add(userArgumentResolver);
+    }
+}
+```
+
+
+
+UserArgumentResolver中对用户是否登录进行校验：
+
+```java
+@Component
+public class UserArgumentResolver implements HandlerMethodArgumentResolver {
+    @Autowired
+    private IUserService userService;
+
+    @Override
+    public boolean supportsParameter(MethodParameter parameter) {
+        Class<?> clazz = parameter.getParameterType();
+        return clazz == User.class;
+    }
+
+    @Override
+    public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
+        HttpServletRequest request = webRequest.getNativeRequest(HttpServletRequest.class);
+        HttpServletResponse response = webRequest.getNativeResponse(HttpServletResponse.class);
+        String ticket = CookieUtil.getCookieValue(request, "userTicket");
+        if (StringUtils.isEmpty(ticket))
+            return null;
+        User user = userService.getUserByCookie(ticket, request, response);
+        return user;
+    }
+}
+```
+
+
+
+从redis中获取用户信息：
+
+```java
+@Override
+    public User getUserByCookie(String userTicket, HttpServletRequest request, HttpServletResponse response) {
+        if (StringUtils.isEmpty(userTicket)){
+            return null;
+        }
+        User user = (User) redisTemplate.opsForValue().get("user:" + userTicket);
+        if (user != null){
+            CookieUtil.setCookie(request, response, "userTicket", userTicket);
+        }
+        return user;
+    }
+```
+
