@@ -17,7 +17,7 @@ spring:
       connection-test-query: SELECT 1
 
   redis:
-    host: 10.67.182.122
+    host: 192.168.43.193
     port: 6379
     database: 0
     connect-timeout: 10000ms

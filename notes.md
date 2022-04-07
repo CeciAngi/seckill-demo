@@ -152,3 +152,12 @@ public class UserArgumentResolver implements HandlerMethodArgumentResolver {
     }
 ```
 
+
+
+
+
+#### 2022.04.07（初步完成秒杀功能）
+
+每人每种商品限购一件，在秒杀之前判断用户是否已秒杀该商品
+
+没有什么技术难点，后续还要完善。

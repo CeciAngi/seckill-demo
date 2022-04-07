@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.seckilldemo.mapper.GoodsMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.example.seckilldemo.entity.Goods">
+        <result column="id" property="id"/>
+        <result column="goods_name" property="goodsName"/>
+        <result column="goods_title" property="goodsTitle"/>
+        <result column="goods_img" property="goodsImg"/>
+        <result column="goods_detail" property="goodsDetail"/>
+        <result column="goods_price" property="goodsPrice"/>
+        <result column="goods_stock" property="goodsStock"/>
+    </resultMap>
+
+    <resultMap id="BaseResultMapVo" type="com.example.seckilldemo.vo.GoodsVo">
+        <result column="id" property="id"/>
+        <result column="goods_name" property="goodsName"/>
+        <result column="goods_title" property="goodsTitle"/>
+        <result column="goods_img" property="goodsImg"/>
+        <result column="goods_detail" property="goodsDetail"/>
+        <result column="goods_price" property="goodsPrice"/>
+        <result column="goods_stock" property="goodsStock"/>
+        <result column="seckill_price" property="seckillPrice"/>
+        <result column="stock_count" property="stockCount"/>
+        <result column="start_date" property="startDate"/>
+        <result column="end_date" property="endDate"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id
+        ,
+        goods_name, goods_title, goods_img, goods_detail, goods_price, goods_stock
+    </sql>
+    <select id="findGoodsVo" resultType="com.example.seckilldemo.vo.GoodsVo">
+        SELECT t_goods.*,
+               t_seckill_goods.seckill_price,
+               t_seckill_goods.stock_count,
+               t_seckill_goods.start_date,
+               t_seckill_goods.end_date
+        from t_goods,
+             t_seckill_goods
+        WHERE t_goods.id = t_seckill_goods.goods_id
+    </select>
+    <select id="findGoodsVoByGoodsId" resultType="com.example.seckilldemo.vo.GoodsVo">
+        SELECT t_goods.*,
+               t_seckill_goods.seckill_price,
+               t_seckill_goods.stock_count,
+               t_seckill_goods.start_date,
+               t_seckill_goods.end_date
+        from t_goods,
+             t_seckill_goods
+        WHERE t_goods.id = t_seckill_goods.goods_id
+          and t_goods.id = #{goodsId}
+    </select>
+
+</mapper>
