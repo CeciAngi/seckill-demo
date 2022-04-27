@@ -161,3 +161,17 @@ public class UserArgumentResolver implements HandlerMethodArgumentResolver {
 每人每种商品限购一件，在秒杀之前判断用户是否已秒杀该商品
 
 没有什么技术难点，后续还要完善。
+
+
+
+
+
+#### 2022.04.28（页面缓存，凌晨睡不着）
+
+![image-20220428030242293](../../Typroa_images/image-20220428030242293.png)
+
+![image-20220428030348425](../../Typroa_images/image-20220428030348425.png)
+
+![image-20220428030403582](../../Typroa_images/image-20220428030403582.png)
+
+URL缓存也类似
